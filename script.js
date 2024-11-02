@@ -14,10 +14,8 @@ const avgTimePerStudent = 5;
 
 // Function to update the display of the queue
 function updateQueueDisplay() {
-    // Clear the current list
     queueList.innerHTML = '';
 
-    // Check if the queue is empty
     if (queue.length === 0) {
         const emptyMessage = document.createElement('li');
         emptyMessage.textContent = "Queue is empty...";
@@ -27,45 +25,76 @@ function updateQueueDisplay() {
         return;
     }
 
-    // Populate the queue list
     queue.forEach((student, index) => {
         const listItem = document.createElement('li');
         listItem.className = 'py-2';
-
-        // Display queue position and student's name and topic
         listItem.innerHTML = `<strong>${index + 1}.</strong> ${student.name} - ${student.topic}`;
-
-        // Highlight the student if they're first in the queue
         if (index === 0) {
             listItem.classList.add('highlight');
         }
-
         queueList.appendChild(listItem);
     });
 
-    // Update the estimated wait time for the first student
     const estimatedTime = queue.length * avgTimePerStudent;
     estimatedWait.textContent = `${estimatedTime} min`;
+
+    // Send email notification to the first person in the queue if they've just moved up
+    if (queue.length > 1 && queue[0].notified === false) {
+        queue[0].notified = true; // Mark as notified
+        sendEmailNotification(queue[0].email, queue[0].name);
+    }
 }
+
+function updateQueueDisplay() {
+    queueList.innerHTML = '';
+
+    if (queue.length === 0) {
+        const emptyMessage = document.createElement('li');
+        emptyMessage.textContent = "Queue is empty...";
+        emptyMessage.className = 'text-center text-gray-500';
+        queueList.appendChild(emptyMessage);
+        estimatedWait.textContent = '0 min';
+        return;
+    }
+
+    queue.forEach((student, index) => {
+        const listItem = document.createElement('li');
+        listItem.className = 'py-2';
+        listItem.innerHTML = `<strong>${index + 1}.</strong> ${student.name} - ${student.topic}`;
+        if (index === 0) {
+            listItem.classList.add('highlight');
+        }
+        queueList.appendChild(listItem);
+    });
+
+    const estimatedTime = queue.length * avgTimePerStudent;
+    estimatedWait.textContent = `${estimatedTime} min`;
+
+    // Send email notification to the first person in the queue if they've just moved up
+    if (queue.length > 1 && queue[0].notified === false) {
+        queue[0].notified = true; // Mark as notified
+        sendEmailNotification(queue[0].email, queue[0].name);
+    }
+}
+
 
 // Function to handle form submission
 function joinQueue(event) {
-    event.preventDefault(); // Prevent form from refreshing the page
+    event.preventDefault();
 
-    // Get the student's name and topic from the form
     const name = document.getElementById('name').value;
     const topic = document.getElementById('topic').value;
+    const email = document.getElementById('email').value;
 
-    // Add the student to the queue
-    queue.push({ name, topic });
+    queue.push({ name, topic, email });
 
-    // Clear the form fields
     document.getElementById('name').value = '';
     document.getElementById('topic').value = '';
+    document.getElementById('email').value = '';
 
-    // Update the queue display
     updateQueueDisplay();
 }
+
 
 // Function to leave the queue by name
 function leaveQueue() {
