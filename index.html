@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,104 +15,77 @@
         }
 
         body {
-            background-image: url('image.png');
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f0f4f8;
+            background-color: white; /* Set the background color to white */
+            color: black; /* Change default text color to black for better contrast */
         }
-
+        .highlight {
+            background-color: #ffd700; /* Golden highlight color for queue position */
+        }
         .container {
-            display: flex;
-            gap: 30px;
-            padding: 30px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white for the main container */
         }
-
-        .form-box {
-            width: 300px;
-            padding: 20px;
+        /* Set input text color to black */
+        input {
+            color: black; /* Change input text color to black */
+            background-color: white; /* Default input background color */
+            transition: background-color 0.3s; /* Smooth transition for background color change */
         }
-
-        h2 {
-            margin-bottom: 20px;
-            color: #333;
-            text-align: center;
-        }
-
-        label {
-            font-weight: 700;
-            margin-bottom: 5px;
-            display: inline-block;
-            color: #555;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: rgb(223, 137, 33);
-            color: #fff;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: darkorange;
-        }
-
-        p {
-            text-align: center;
-            color: #777;
-            font-size: 0.9em;
-            margin-top: 10px;
-        }
-        
-        a {
-            color: #555;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
+        /* Change input background color when focused */
+        input:focus {
+            background-color: #f0f0f0; /* Light gray background when input is focused */
+            outline: none; /* Remove default outline */
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Log In Form -->
-        <div class="form-box" id="login">
-            <h2 style="color:#555; font-family: Apple Chancery, cursive";>Welcome to Longhorn Lineup</h2>
-            <form action="#" method="POST">
-                <label for="login-email">Email</label>
-                <input type="email" id="login-email" name="email" class="email-input" required>
+<body class="flex items-center justify-center min-h-screen">
 
-                <label for="login-password">Password</label>
-                <input type="password" id="login-password" name="password" class="password-input" required>
+    <!-- Main Container -->
+    <div class="container w-full max-w-lg mx-auto shadow-md rounded-lg p-8">
+        <!-- Header Section -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold">Longhorn Lineup</h1>
+            <p class="text-gray-700 mt-2">Effortlessly join the line for TA help at GDC 314 without waiting around!</p>
+        </header>
 
-                <label for="login-password">Class Name</label>
-                <input type="email" id="login-password" name="password" class="class-input" required>
+        <!-- Queue Form Section -->
+        <section id="queueFormSection" class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Join the Queue</h2>
+            <!-- Form for students to join the queue -->
+            <form id="queueForm" class="flex flex-col">
+                <label for="name" class="text-gray-700 mb-1">Name:</label>
+                <input type="text" id="name" class="border border-gray-300 rounded p-2 mb-4" placeholder="Enter your name" required>
 
-                <button type="submit"><a href="queue.html" class="button">Log in</a></button>
+                <label for="topic" class="text-gray-700 mb-1">Topic:</label>
+                <input type="text" id="topic" class="border border-gray-300 rounded p-2 mb-4" placeholder="Enter topic or question" required>
+                <button type="submit" class="bg-red-500 hover:bg-orange-600 text-white font-bold p-2 rounded mt-2 border-2 border-black">Join Queue</button>
+                <button type="button" id="clearQueueButton" class="bg-blue-500 hover:bg-orange-600 text-white font-bold p-2 rounded mt-2 border-2 border-black">Clear Queue</button>
             </form>
-            <p>Don't have an account? <a href="#signup">Sign Up</a></p>
-        </div>
+        </section>
+
+        <!-- Queue Display Section -->
+        <section id="queueDisplaySection" class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Current Queue</h2>
+            <!-- Placeholder to show queue list -->
+            <ul id="queueList" class="bg-gray-100 border border-gray-300 rounded-lg p-4 max-h-64 overflow-y-auto">
+                <!-- JavaScript will dynamically add queue items here -->
+                <li class="text-center text-gray-500">Queue is empty...</li>
+            </ul>
+        </section>
+
+        <!-- Estimated Wait Time Section -->
+        <section id="estimatedWaitSection" class="text-center">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Your Estimated Wait Time</h2>
+            <p id="estimatedWait" class="text-2xl font-bold">0 min</p>
+        </section>
+
+        <!-- Leave Queue Section -->
+        <section id="leaveQueueSection" class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Leave the Queue</h2>
+            <input type="text" id="leaveName" class="border border-gray-300 rounded p-2 mb-4" placeholder="Enter your name to leave" required>
+            <button id="leaveQueueButton" class="bg-red-500 hover:bg-red-600 text-white font-bold p-2 rounded mt-4">Leave Queue</button>
+        </section>
     </div>
 
 </body>
+
 </html>
