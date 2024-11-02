@@ -2,6 +2,9 @@
 const queueForm = document.getElementById('queueForm');
 const queueList = document.getElementById('queueList');
 const estimatedWait = document.getElementById('estimatedWait');
+const leaveQueueButton = document.getElementById('leaveQueueButton'); // Select the leave queue button
+const leaveNameInput = document.getElementById('leaveName'); // Select the input field for leaving
+
 
 // Queue data structure to store students
 let queue = [];
@@ -64,5 +67,28 @@ function joinQueue(event) {
     updateQueueDisplay();
 }
 
+// Function to leave the queue by name
+function leaveQueue() {
+    // Get the name to leave from the input field
+    const nameToLeave = leaveNameInput.value.trim();
+
+    // Find the index of the student in the queue
+    const index = queue.findIndex(student => student.name.toLowerCase() === nameToLeave.toLowerCase());
+
+    if (index !== -1) {
+        // If the student is found, remove them from the queue
+        queue.splice(index, 1);
+        leaveNameInput.value = ''; // Clear the input field
+        updateQueueDisplay(); // Update the display
+    } else {
+        // If the student is not found, alert the user
+        alert(`Cannot find name: ${nameToLeave}`);
+    }
+}
+
+
 // Attach event listener to the form
 queueForm.addEventListener('submit', joinQueue);
+
+// Attach event listener to the leave queue button
+leaveQueueButton.addEventListener('click', leaveQueue);
