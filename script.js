@@ -5,7 +5,6 @@ const estimatedWait = document.getElementById('estimatedWait');
 const leaveQueueButton = document.getElementById('leaveQueueButton'); // Select the leave queue button
 const leaveNameInput = document.getElementById('leaveName'); // Select the input field for leaving
 
-
 // Queue data structure to store students
 let queue = [];
 
@@ -86,9 +85,14 @@ function leaveQueue() {
     }
 }
 
-
 // Attach event listener to the form
 queueForm.addEventListener('submit', joinQueue);
 
 // Attach event listener to the leave queue button
 leaveQueueButton.addEventListener('click', leaveQueue);
+
+// (Optional) Attach event listener to the clear queue button if you want to implement it
+document.getElementById('clearQueueButton').addEventListener('click', () => {
+    queue = []; // Clear the queue array
+    updateQueueDisplay(); // Update the display
+});
