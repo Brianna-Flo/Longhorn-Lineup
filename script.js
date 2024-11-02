@@ -5,12 +5,27 @@ const estimatedWait = document.getElementById('estimatedWait');
 const leaveQueueButton = document.getElementById('leaveQueueButton'); // Select the leave queue button
 const leaveNameInput = document.getElementById('leaveName'); // Select the input field for leaving
 
-
 // Queue data structure to store students
 let queue = [];
 
 // Average time per student (in minutes) for wait time calculation
 const avgTimePerStudent = 5;
+
+// Store the user's name to identify their position in the queue
+let userName = '';
+
+// Function to request permission for browser notifications
+function requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission !== 'granted') {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                console.log("Notification permission granted.");
+            } else {
+                console.log("Notification permission denied.");
+            }
+        });
+    }
+}
 
 // Function to update the display of the queue
 function updateQueueDisplay() {
@@ -40,6 +55,11 @@ function updateQueueDisplay() {
             listItem.classList.add('highlight');
         }
 
+        // Check if this is the user's name and if they are about to be called
+        if (student.name.toLowerCase() === userName.toLowerCase() && index < 3 && Notification.permission === 'granted') {
+            sendQueueNotification(student.name, index + 1);
+        }
+
         queueList.appendChild(listItem);
     });
 
@@ -48,13 +68,33 @@ function updateQueueDisplay() {
     estimatedWait.textContent = `${estimatedTime} min`;
 }
 
+// Function to send a notification for students near the front of the queue
+function sendQueueNotification(studentName, position) {
+    const notificationMessage = `Hey ${studentName}, you're now ${position} in line! Get ready!`;
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification("Longhorn Lineup Alert", {
+            body: notificationMessage,
+            icon: 'https://example.com/notification-icon.png' // Replace with an icon URL if desired
+        });
+    }
+}
+
 // Function to handle form submission
 function joinQueue(event) {
     event.preventDefault(); // Prevent form from refreshing the page
 
+    // Request notification permission
+    requestNotificationPermission();
+
     // Get the student's name and topic from the form
     const name = document.getElementById('name').value;
     const topic = document.getElementById('topic').value;
+
+    // Store the user's name if this is the first time joining
+    if (!userName) {
+        userName = name; // Save the name to identify the user in the queue
+    }
 
     // Add the student to the queue
     queue.push({ name, topic });
@@ -85,7 +125,6 @@ function leaveQueue() {
         alert(`Cannot find name: ${nameToLeave}`);
     }
 }
-
 
 // Attach event listener to the form
 queueForm.addEventListener('submit', joinQueue);
