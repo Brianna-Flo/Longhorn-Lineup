@@ -29,14 +29,13 @@ function requestNotificationPermission() {
 }
 
 // Function to update the display of the queue
+// Function to update the display of the queue
 function updateQueueDisplay() {
-    console.log("Updating queue display..."); // Debugging line
-    console.log("Current queue:", queue); // Log the current queue
+    console.log("Updating queue display...");
+    console.log("Current queue:", queue);
 
-    // Clear the current list
     queueList.innerHTML = '';
 
-    // Check if the queue is empty
     if (queue.length === 0) {
         const emptyMessage = document.createElement('li');
         emptyMessage.textContent = "Queue is empty...";
@@ -46,18 +45,20 @@ function updateQueueDisplay() {
         return;
     }
 
-    // Sort the queue: prioritize students with "priority" set to true
     const sortedQueue = [...queue].sort((a, b) => b.priority - a.priority);
 
-    // Populate the queue list with sorted queue
     sortedQueue.forEach((student, index) => {
         const listItem = document.createElement('li');
         listItem.className = 'py-2';
 
-        // Display queue position, student's name, and topic
-        listItem.innerHTML = `<strong>${index + 1}.</strong> ${student.name} - ${student.topic} ${student.priority ? "(Priority)" : ""}`;
+        // Calculate individual estimated wait time
+        const individualWaitTime = (index + 1) * avgTimePerStudent;
 
-        // Highlight the student if they're first in the queue
+        // Display student position, name, topic, and wait time
+        listItem.innerHTML = `<strong>${index + 1}.</strong> ${student.name} - ${student.topic} 
+                              ${student.priority ? "(Priority)" : ""}
+                              - Est. Wait: ${individualWaitTime} min`;
+
         if (index === 0) {
             listItem.classList.add('highlight');
         }
@@ -65,10 +66,10 @@ function updateQueueDisplay() {
         queueList.appendChild(listItem);
     });
 
-    // Update the estimated wait time for the first student
     const estimatedTime = queue.length * avgTimePerStudent;
     estimatedWait.textContent = `${estimatedTime} min`;
 }
+
 
 // Function to handle form submission
 function joinQueue(event) {
