@@ -4,21 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Longhorn Lineup</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Link to Tailwind CSS for easy and beautiful styling -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Additional custom styles */
+        body {
+            background-color: #f3f4f6; /* Light gray background for better contrast */
+        }
+        .highlight {
+            background-color: #ffd700; /* Golden highlight color for queue position */
+        }
+    </style>
 </head>
-<body>
-    <h1>Welcome to Longhorn Lineup</h1>
-    <div id="app"></div>
+<body class="flex items-center justify-center min-h-screen">
 
-    <form id="queueForm">
-        <label for="name">Name:</label>
-        <input type="text" id="name" required>
-        <button type="submit">Join Queue</button>
-        <div style="background-color: orange;"></div>
-    </form>
-    
+    <!-- Main Container -->
+    <div class="w-full max-w-lg mx-auto bg-white shadow-md rounded-lg p-8">
+        <!-- Header Section -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-orange-500">Longhorn Lineup</h1>
+            <p class="text-gray-600 mt-2">Effortlessly join the line for TA help at GDC 314 without waiting around!</p>
+        </header>
+
+        <!-- Queue Form Section -->
+        <section id="queueFormSection" class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Join the Queue</h2>
+            <!-- Form for students to join the queue -->
+            <form id="queueForm" class="flex flex-col">
+                <label for="name" class="text-gray-700 mb-1">Name:</label>
+                <input type="text" id="name" class="border border-gray-300 rounded p-2 mb-4" placeholder="Enter your name" required>
+
+                <label for="topic" class="text-gray-700 mb-1">Topic:</label>
+                <input type="text" id="topic" class="border border-gray-300 rounded p-2 mb-4" placeholder="Enter topic or question" required>
+
+                <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white font-bold p-2 rounded mt-2">Join Queue</button>
+            </form>
+        </section>
+
+        <!-- Queue Display Section -->
+        <section id="queueDisplaySection" class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Current Queue</h2>
+            <!-- Placeholder to show queue list -->
+            <ul id="queueList" class="bg-gray-100 border border-gray-300 rounded-lg p-4 max-h-64 overflow-y-auto">
+                <!-- JavaScript will dynamically add queue items here -->
+                <li class="text-center text-gray-500">Queue is empty...</li>
+            </ul>
+        </section>
+
+        <!-- Estimated Wait Time Section -->
+        <section id="estimatedWaitSection" class="text-center">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Your Estimated Wait Time</h2>
+            <p id="estimatedWait" class="text-2xl font-bold text-orange-500">0 min</p>
+        </section>
+    </div>
+
+    <!-- Include JavaScript file for dynamic functionality -->
     <script src="script.js"></script>
-
 
 </body>
 </html>
