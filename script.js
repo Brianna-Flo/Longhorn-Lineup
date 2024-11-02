@@ -2,8 +2,9 @@
 const queueForm = document.getElementById('queueForm');
 const queueList = document.getElementById('queueList');
 const estimatedWait = document.getElementById('estimatedWait');
-const leaveQueueButton = document.getElementById('leaveQueueButton'); // Select the leave queue button
-const leaveNameInput = document.getElementById('leaveName'); // Select the input field for leaving
+const leaveQueueButton = document.getElementById('leaveQueueButton');
+const leaveNameInput = document.getElementById('leaveName');
+const priorityCheckbox = document.getElementById('priority'); // Select the priority checkbox
 
 // Queue data structure to store students
 let queue = [];
@@ -29,6 +30,9 @@ function requestNotificationPermission() {
 
 // Function to update the display of the queue
 function updateQueueDisplay() {
+    console.log("Updating queue display..."); // Debugging line
+    console.log("Current queue:", queue); // Log the current queue
+
     // Clear the current list
     queueList.innerHTML = '';
 
@@ -42,22 +46,20 @@ function updateQueueDisplay() {
         return;
     }
 
-    // Populate the queue list
-    queue.forEach((student, index) => {
+    // Sort the queue: prioritize students with "priority" set to true
+    const sortedQueue = [...queue].sort((a, b) => b.priority - a.priority);
+
+    // Populate the queue list with sorted queue
+    sortedQueue.forEach((student, index) => {
         const listItem = document.createElement('li');
         listItem.className = 'py-2';
 
-        // Display queue position and student's name and topic
-        listItem.innerHTML = `<strong>${index + 1}.</strong> ${student.name} - ${student.topic}`;
+        // Display queue position, student's name, and topic
+        listItem.innerHTML = `<strong>${index + 1}.</strong> ${student.name} - ${student.topic} ${student.priority ? "(Priority)" : ""}`;
 
         // Highlight the student if they're first in the queue
         if (index === 0) {
             listItem.classList.add('highlight');
-        }
-
-        // Check if this is the user's name and if they are about to be called
-        if (student.name.toLowerCase() === userName.toLowerCase() && index < 3 && Notification.permission === 'granted') {
-            sendQueueNotification(student.name, index + 1);
         }
 
         queueList.appendChild(listItem);
@@ -68,18 +70,6 @@ function updateQueueDisplay() {
     estimatedWait.textContent = `${estimatedTime} min`;
 }
 
-// Function to send a notification for students near the front of the queue
-function sendQueueNotification(studentName, position) {
-    const notificationMessage = `Hey ${studentName}, you're now ${position} in line! Get ready!`;
-
-    if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification("Longhorn Lineup Alert", {
-            body: notificationMessage,
-            icon: 'https://example.com/notification-icon.png' // Replace with an icon URL if desired
-        });
-    }
-}
-
 // Function to handle form submission
 function joinQueue(event) {
     event.preventDefault(); // Prevent form from refreshing the page
@@ -87,21 +77,32 @@ function joinQueue(event) {
     // Request notification permission
     requestNotificationPermission();
 
-    // Get the student's name and topic from the form
-    const name = document.getElementById('name').value;
-    const topic = document.getElementById('topic').value;
+    // Get the student's name, topic, and priority status from the form
+    const name = document.getElementById('name').value.trim();
+    const topic = document.getElementById('topic').value.trim();
+    const priority = priorityCheckbox.checked; // Get priority status
+
+    console.log("Joining queue:", name, topic, priority); // Debugging line
+
+    // Check if name or topic is missing
+    if (!name || !topic) {
+        alert("Please enter both a name and a topic.");
+        return;
+    }
 
     // Store the user's name if this is the first time joining
     if (!userName) {
         userName = name; // Save the name to identify the user in the queue
     }
 
-    // Add the student to the queue
-    queue.push({ name, topic });
+    // Add the student to the queue, including their priority status
+    queue.push({ name, topic, priority });
+    console.log("Student added to queue:", { name, topic, priority }); // Debugging line
 
     // Clear the form fields
     document.getElementById('name').value = '';
     document.getElementById('topic').value = '';
+    priorityCheckbox.checked = false; // Reset the priority checkbox
 
     // Update the queue display
     updateQueueDisplay();
@@ -111,6 +112,8 @@ function joinQueue(event) {
 function leaveQueue() {
     // Get the name to leave from the input field
     const nameToLeave = leaveNameInput.value.trim();
+
+    console.log("Leaving queue:", nameToLeave); // Debugging line
 
     // Find the index of the student in the queue
     const index = queue.findIndex(student => student.name.toLowerCase() === nameToLeave.toLowerCase());
@@ -131,3 +134,9 @@ queueForm.addEventListener('submit', joinQueue);
 
 // Attach event listener to the leave queue button
 leaveQueueButton.addEventListener('click', leaveQueue);
+
+// (Optional) Attach event listener to the clear queue button if you want to implement it
+document.getElementById('clearQueueButton').addEventListener('click', () => {
+    queue = []; // Clear the queue array
+    updateQueueDisplay(); // Update the display
+});
