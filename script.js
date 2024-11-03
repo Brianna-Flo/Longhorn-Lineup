@@ -130,6 +130,9 @@ function leaveQueue() {
     }
 }
 
+// Call the function with a sample string
+speak("Hello, this is your function speaking!");
+
 // Attach event listener to the form
 queueForm.addEventListener('submit', joinQueue);
 

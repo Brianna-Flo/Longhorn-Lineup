@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,28 +10,35 @@
     <style>
         /* Additional custom styles */
         body {
+            background-image: url('lhbackground.png'); /* Use the correct file path */
+            background-size: 100% 800px; /* Adjust the height as needed */
             background-color: white; /* Set the background color to white */
             color: black; /* Change default text color to black for better contrast */
         }
+
         .highlight {
-            background-color: darkorange; /* Golden highlight color for queue position */
+            background-color: #db7910; /* Yellow highlight color for the top of the queue */
         }
+
         .container {
             background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white for the main container */
         }
+
         /* Set input text color to black */
         input {
-            color: black; /* Change input text color to black */
-            background-color: white; /* Default input background color */
-            transition: background-color 0.3s; /* Smooth transition for background color change */
+            color: black;
+            background-color: white;
+            transition: background-color 0.3s;
         }
+
         /* Change input background color when focused */
         input:focus {
-            background-color: #f0f0f0; /* Light gray background when input is focused */
-            outline: none; /* Remove default outline */
+            background-color: #f0f0f0;
+            outline: none;
         }
     </style>
 </head>
+
 <body class="flex items-center justify-center min-h-screen">
 
     <!-- Main Container -->
@@ -38,12 +46,12 @@
         <!-- Header Section -->
         <header class="text-center mb-8">
             <h1 class="text-3xl font-bold">Longhorn Lineup</h1>
-            <p class="text-gray-700 mt-2">Effortlessly join the line for TA help at GDC Floor 4 without waiting around!</p>
+            <p class="text-gray-700 mt-2">Simply join the line for TA help at GDC Floor 4 without waiting around!</p>
         </header>
 
         <!-- Queue Form Section -->
         <section id="queueFormSection" class="mb-6">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Join the CS429 Queue</h2>
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Join the Queue</h2>
             <!-- Form for students to join the queue -->
             <form id="queueForm" class="flex flex-col">
                 <label for="name" class="text-gray-700 mb-1">Name:</label>
@@ -51,6 +59,7 @@
 
                 <label for="topic" class="text-gray-700 mb-1">Topic:</label>
                 <input type="text" id="topic" class="border border-gray-300 rounded p-2 mb-4" placeholder="Enter topic or question" required>
+
                 <button type="submit" class="bg-red-500 hover:bg-orange-600 text-white font-bold p-2 rounded mt-2 border-2 border-black">Join Queue</button>
                 <button type="button" id="clearQueueButton" class="bg-blue-500 hover:bg-orange-600 text-white font-bold p-2 rounded mt-2 border-2 border-black">Clear Queue</button>
             </form>
@@ -58,11 +67,10 @@
 
         <!-- Queue Display Section -->
         <section id="queueDisplaySection" class="mb-6">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Current Queue</h2>
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">CS 429 Queue</h2>
             <!-- Placeholder to show queue list -->
             <ul id="queueList" class="bg-gray-100 border border-gray-300 rounded-lg p-4 max-h-64 overflow-y-auto">
-                <!-- JavaScript will dynamically add queue items here -->
-                <li class="text-center text-gray-500">Queue is empty...</li>
+                <li id="emptyMessage" class="text-center text-gray-500">Queue is empty...</li>
             </ul>
         </section>
 
@@ -81,6 +89,135 @@
     </div>
 
     <!-- Include JavaScript file for dynamic functionality -->
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let estimatedWaitTime = 0; // Initialize estimated wait time
+            const queueList = document.getElementById('queueList');
+            const emptyMessage = document.getElementById('emptyMessage');
+            const queueForm = document.getElementById('queueForm');
+            const nameInput = document.getElementById('name');
+            const topicInput = document.getElementById('topic');
+            const leaveQueueButton = document.getElementById('leaveQueueButton');
+            const leaveNameInput = document.getElementById('leaveName');
+            const clearQueueButton = document.getElementById('clearQueueButton');
+            const estimatedWaitDisplay = document.getElementById('estimatedWait');
+
+            // Function to update the displayed wait time
+            function updateEstimatedWaitTime() {
+                estimatedWaitDisplay.textContent = `${estimatedWaitTime} min`;
+            }
+
+            // Handle form submission for adding to the queue
+            queueForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const name = nameInput.value.trim();
+                const topic = topicInput.value.trim();
+
+                if (name && topic) {
+                    // Remove the "Queue is empty" message if present
+                    if (emptyMessage) {
+                        emptyMessage.remove();
+                    }
+
+                    const listItem = document.createElement('li');
+                    listItem.className = 'flex justify-between items-center p-2 border-b border-gray-300 cursor-pointer';
+                    listItem.innerHTML = `<span>${name} - ${topic}</span>`;
+                    queueList.appendChild(listItem);
+                    nameInput.value = '';
+                    topicInput.value = '';
+
+                    // Update estimated wait time
+                    estimatedWaitTime += 5;
+                    updateEstimatedWaitTime();
+
+                    // Highlight the top item in the queue
+                    updateQueueHighlight();
+
+                    // Remove the item when clicked
+                    listItem.addEventListener('click', () => {
+                        const nextItem = listItem.nextElementSibling;
+                        const nextPersonUp = nextItem ? nextItem.nextElementSibling : null;
+
+                        // Check if there is a next item
+                        if (nextItem) {
+                            // Say just the name of the next person
+                            const speech = new SpeechSynthesisUtterance(`${nextItem.textContent.slice(0, 5)}, you are up. The next person in line is, ${nextPersonUp.textContent.slice(0, 5)}`);
+                            speech.lang = 'en-US'; // You can change this to a different language if needed
+                            window.speechSynthesis.speak(speech);
+                        } else {
+                            // If there is no next item, indicate that the queue is ending
+                            const speech = new SpeechSynthesisUtterance('The queue is empty or there is no one else in line.');
+                            speech.lang = 'en-US';
+                            window.speechSynthesis.speak(speech);
+                        }
+
+                        listItem.remove();
+                        updateQueueHighlight();
+
+                        // Update estimated wait time
+                        if (estimatedWaitTime >= 5) {
+                            estimatedWaitTime -= 5;
+                        } else {
+                            estimatedWaitTime = 0;
+                        }
+                        updateEstimatedWaitTime();
+
+                        // Check if the queue is empty
+                        if (queueList.children.length === 0) {
+                            queueList.innerHTML = '<li id="emptyMessage" class="text-center text-gray-500">Queue is empty...</li>';
+                        }
+                    });
+                }
+            });
+
+            // Handle clearing the queue
+            clearQueueButton.addEventListener('click', () => {
+                queueList.innerHTML = '<li id="emptyMessage" class="text-center text-gray-500">Queue is empty...</li>';
+                estimatedWaitTime = 0; // Reset the estimated wait time
+                updateEstimatedWaitTime();
+            });
+
+            // Handle leaving the queue
+            leaveQueueButton.addEventListener('click', () => {
+                const leaveName = leaveNameInput.value.trim().toLowerCase();
+                if (leaveName) {
+                    const items = queueList.querySelectorAll('li');
+                    items.forEach((item) => {
+                        const itemName = item.querySelector('span').textContent.split(' - ')[0].toLowerCase();
+                        if (itemName === leaveName) {
+                            item.remove();
+                            // Update estimated wait time
+                            if (estimatedWaitTime >= 5) {
+                                estimatedWaitTime -= 5;
+                            } else {
+                                estimatedWaitTime = 0;
+                            }
+                            updateEstimatedWaitTime();
+                        }
+                    });
+                    leaveNameInput.value = '';
+                    updateQueueHighlight();
+
+                    // Check if the queue is empty
+                    if (queueList.children.length === 0) {
+                        queueList.innerHTML = '<li id="emptyMessage" class="text-center text-gray-500">Queue is empty...</li>';
+                    }
+                }
+            });
+
+            // Function to update the highlight for the top item in the queue
+            function updateQueueHighlight() {
+                const items = queueList.querySelectorAll('li');
+                items.forEach((item, index) => {
+                    if (index === 0) {
+                        item.classList.add('highlight');
+                    } else {
+                        item.classList.remove('highlight');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>
